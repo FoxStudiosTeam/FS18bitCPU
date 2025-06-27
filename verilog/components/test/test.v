@@ -3,6 +3,6 @@ module test(
     output wire out
 );
 
-assign out = in * 2;
+assign out = ~in;
 
 endmodule

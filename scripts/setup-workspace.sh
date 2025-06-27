@@ -14,7 +14,7 @@ elif  [[ $arch == arm* ]]; then
     curl -L https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-09-15/oss-cad-suite-darwin-arm64-20230915.tgz | tar -xz -C ~/oss-cad-suite --strip-components=1
     echo "OSS CAD Suite installed in ~/oss-cad-suite"
     echo "Add the following line to your ~/.zshrc or ~/.bash_profile:"
-    echo 'export PATH="$PATH:$HOME/oss-cad-suite/bin"'
+    echo 'export PATH="$PATH:$HOME/oss-cad-suite/bin"' >> ~/.zprofile
   fi
 else 
   echo "Platform \"$arch\" is not supported yet"

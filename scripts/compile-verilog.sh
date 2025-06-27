@@ -14,8 +14,13 @@ fi
 
 echo "предварительная команда $rawCommand"
 
-# Компиляция
-"$OSS_CAD_PATH/iverilog" -o $rawCommand
+# Разбиваем команду на компоненты
+read -r OUTPUT_FILE SOURCE_FILES <<< "$rawCommand"
 
-## Открытие результата в GTKWave
-#"$OSS_CAD_PATH/gtkwave" test.vcd
+# Компиляция в файл выходной файл
+"$OSS_CAD_PATH/iverilog" -o "$OUTPUT_FILE" $SOURCE_FILES
+
+# Запускаем симуляцию для генерации VCD файла
+"$OSS_CAD_PATH/vvp" "$OUTPUT_FILE"
+
+echo "Симуляция завершена. VCD файл сгенерирован."
