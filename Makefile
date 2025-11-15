@@ -1,40 +1,31 @@
-setup-workspace:
-	./scripts/setup-workspace.sh
+-include .env
 
-#test - название модуля test.v - название исходника, test1_tb.v - название тестового контейнера
-#example: COMMAND="test verilog/components/test/test.v verilog/components/test/test/test_tb.v" make compile-verilog
-compile-verilog:
-	./scripts/compile-verilog.sh
+SRC_DIR = src/components
+VVP_EXT = vvp
+VCD_EXT = vcd
 
-#test.vcd - результат выполнения test файла полученного после compile-verilog таска
-#example: COMMAND="test.vcd" make open-gtkwave
-open-gtkwave:
-	./scripts/open-gtkwave.sh
+# Все исходные модули Verilog (исключаем *_tb.v)
+VERILOG_SRC := $(shell find $(SRC_DIR) -name "*.v" ! -name "*_tb.v")
 
-# Компилятор Verilog
-IVERILOG = iverilog
-VVP = vvp
-GTKWAVE = $(HOME)/oss-cad-suite/bin/gtkwave
+# Найти все тестбенчи
+TBS := $(shell find $(SRC_DIR) -name "*_tb.v")
 
-# Исходные файлы
-SRC_FILES = verilog/components/alu_8bit/alu_8bit.v verilog/components/control_unit/control_unit.v verilog/components/memory/memory.v verilog/components/register_l1/register_l1_file.v verilog/components/program_counter/program_counter.v verilog/run/processor_8bit.v verilog/run/processor_tb.v
+.PHONY: all show clean
 
-# Результирующие файлы
-OUTPUT = processor_test
-VCD_FILE = processor.vcd
+all: show
 
-all: $(OUTPUT)
-
-$(OUTPUT): $(SRC_FILES)
-	$(IVERILOG) -o $(OUTPUT) $(SRC_FILES)
-
-run: $(OUTPUT)
-	$(VVP) $(OUTPUT)
-
-wave: run
-	$(GTKWAVE) $(VCD_FILE)
+show: $(TBS) clean
+	@for tb in $(TBS); do \
+		dir=$$(dirname $$tb); \
+		base=$$(basename $$tb _tb.v); \
+		vvp_file=$$dir/$$base.vvp; \
+		vcd_file=$$dir/$$base.vcd; \
+		iverilog -g2012 -o $$vvp_file $(VERILOG_SRC) $$tb; \
+		vvp $$vvp_file; \
+		gtkwave $$vcd_file & \
+	done
 
 clean:
-	rm -f $(OUTPUT) $(VCD_FILE)
-
-.PHONY: all run wave clean
+	@find $(SRC_DIR) -name "*.vvp" -delete
+	@find $(SRC_DIR) -name "*.vcd" -delete
+	@pkill gtkwave || true

@@ -1,3 +1,2 @@
-.idea
-*.iml
-oss-cad-suite-macos-arm64.tar.xz
+*.vcd
+*.vvp
